@@ -24,17 +24,35 @@ async def status_presence():
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.head("https://status.sharkbot.xyz/status/default") as response:
                 if response.status == 200:
-                    await bot.change_presence(discord.CustomActivity(name="サービスは起動しています！", emoji="✅"))
+                    await bot.change_presence(activity=discord.CustomActivity(name="サービスは起動しています！", emoji="✅"))
                 else:
-                    await bot.change_presence(discord.CustomActivity(name="サービスは現在ダウン中です..", emoji="❌"))
+                    await bot.change_presence(activity=discord.CustomActivity(name="サービスは現在ダウン中です..", emoji="❌"))
     except aiohttp.ClientConnectorError:
-        await bot.change_presence(discord.CustomActivity(name="サービスは現在ダウン中です..", emoji="❌"))
+        await bot.change_presence(activity=discord.CustomActivity(name="サービスは現在ダウン中です..", emoji="❌"))
     except asyncio.TimeoutError:
-        await bot.change_presence(discord.CustomActivity(name="サービスは現在ダウン中です..", emoji="❌"))
+        await bot.change_presence(activity=discord.CustomActivity(name="サービスは現在ダウン中です..", emoji="❌"))
 
 @bot.event
 async def on_ready():
     status_presence.start()
+
+@bot.event
+async def on_automod_action(execution: discord.AutoModAction):
+    try:
+        await execution.channel.send(embed=discord.Embed(title="ルール違反を検知しました！", description="繰り返される場合はBan処理を行います。", color=discord.Color.red()).set_footer(text="このメッセージは3分後に削除されます。"), content=f"<@{execution.user_id}>", delete_after=180)
+    except:
+        return
+    
+@bot.event
+async def on_guild_emojis_update(guild: discord.Guild, before, after):
+    try:
+        if guild.id == 1343124570131009579:
+            if before and not after:
+                return
+            channel = bot.get_channel(1418169887062360084)
+            await channel.send(embed=discord.Embed(description=str(after), title="新しい絵文字が作成されたよ！使ってみよう！", color=discord.Color.green()))
+    except:
+        return
 
 @bot.event
 async def on_presence_update(before: discord.Member, after: discord.Member):
