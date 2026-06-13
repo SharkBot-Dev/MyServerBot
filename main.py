@@ -47,10 +47,9 @@ async def on_automod_action(execution: discord.AutoModAction):
 async def on_guild_emojis_update(guild: discord.Guild, before, after):
     try:
         if guild.id == 1343124570131009579:
-            if before and not after:
-                return
+            emoji = list(set(after) - set(before))[0]
             channel = bot.get_channel(1418169887062360084)
-            await channel.send(embed=discord.Embed(description=str(after), title="新しい絵文字が作成されたよ！使ってみよう！", color=discord.Color.green()))
+            await channel.send(embed=discord.Embed(description=str(emoji), title="新しい絵文字が作成されたよ！使ってみよう！", color=discord.Color.green()))
     except:
         return
 
