@@ -7,6 +7,8 @@ import dotenv
 import aiohttp
 import re
 
+from tags import Parser
+
 dotenv.load_dotenv()
 
 STATUS_EMOJIS = {
@@ -74,13 +76,41 @@ async def echo(ctx: commands.Context, text: str):
 async def embed(ctx: commands.Context, *, text: str):
     await ctx.channel.send(embed=discord.Embed(description=text))
     await ctx.message.delete()
-
+    
 @bot.command()
 @commands.is_owner()
+async def eval(ctx: commands.Context, *, text: str):
+    parser = Parser({
+        "bot_id": str(bot.user.id),
+        "author": ctx.author.display_name,
+        "author_id": str(ctx.author.id),
+        "author_avatar": str(ctx.author.display_avatar.key),
+        "author_avatar_url": str(ctx.author.display_avatar.url),
+        "author_mention": ctx.author.mention,
+        "guild_id": str(ctx.guild.id),
+        "guild_name": ctx.guild.name,
+        "guild_icon": str(ctx.guild.icon.key) if ctx.guild.icon else "",
+        "guild_icon_url": ctx.guild.icon.url if ctx.guild.icon else "",
+        "count": str(ctx.guild.member_count),
+        "channel_name": str(ctx.channel.name),
+        "channel_id": str(ctx.channel.id),
+        "message_id": str(ctx.message.id)
+    })
+    await ctx.channel.send(await parser.parse(text))
+    await ctx.message.add_reaction("✅")
+
+@bot.command()
+@commands.cooldown(2, 5, type=commands.BucketType.user)
 async def status(ctx: commands.Context):
     bots = [ctx.guild.get_member(1322100616369147924), ctx.guild.get_member(1392853908879179936)]
     status_text = "\n".join([f"{STATUS_EMOJIS.get(b.status)} {b.name}" for b in bots])
     await ctx.channel.send(embed=discord.Embed(title="各Botのステータス", description=status_text, color=discord.Color.blue()))
+
+@bot.command()
+@commands.cooldown(2, 5, type=commands.BucketType.user)
+async def help(ctx: commands.Context):
+    await ctx.channel.send(embed=discord.Embed(title="せんぞくぼっと！の使い方", description="`dd!status`で各Botのステータスを確認します。\n`dd!calc <計算式>`で計算します。", color=discord.Color.green()))
+    await ctx.message.delete()
 
 @bot.command()
 @commands.cooldown(2, 5, type=commands.BucketType.user)
@@ -138,12 +168,12 @@ async def calc(ctx: commands.Context, *, expression: str):
             asyncio.to_thread(safe_calculate, expression), 
             timeout=0.1
         )
-        await ctx.reply(content=f"`{result}`")
+        await ctx.reply(content=result)
 
     except asyncio.TimeoutError:
         await ctx.reply("計算が重すぎます。")
     except Exception as e:
-        await ctx.reply("エラー")
+        await ctx.reply("計算エラー")
 
 
 bot.run(os.environ.get('TOKEN'))
