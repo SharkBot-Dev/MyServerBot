@@ -114,7 +114,7 @@ async def status(ctx: commands.Context):
 async def help(ctx: commands.Context):
     await ctx.channel.send(embed=discord.Embed(title="せんぞくぼっと！の使い方", description="`dd!status`で各Botのステータスを確認します。\n`dd!calc <計算式>`で計算します。", color=discord.Color.green()))
 
-@bot.command()
+@bot.command(name="calc", aliases=["math"])
 @commands.cooldown(2, 5, type=commands.BucketType.user)
 async def calc(ctx: commands.Context, *, expression: str):
     def safe_calculate(expression):
