@@ -51,6 +51,9 @@ async def on_guild_emojis_update(guild: discord.Guild, before, after):
 
 @bot.event
 async def on_presence_update(before: discord.Member, after: discord.Member):
+    if after.guild.id != 1343124570131009579:
+        return
+
     if after.id == 1322100616369147924:
         if after.status == discord.Status.offline:
             await bot.get_channel(1361173338763956284).send(embed=discord.Embed(title=f"Botがダウンしました。", color=discord.Color.red()).add_field(name="Bot名", value=after.global_name).set_thumbnail(url=after.display_avatar.url))
@@ -62,7 +65,7 @@ async def on_presence_update(before: discord.Member, after: discord.Member):
 async def on_message(message):
     if message.author.bot:
         return
-    
+
     await bot.process_commands(message)
 
 @bot.command()
@@ -110,7 +113,6 @@ async def status(ctx: commands.Context):
 @commands.cooldown(2, 5, type=commands.BucketType.user)
 async def help(ctx: commands.Context):
     await ctx.channel.send(embed=discord.Embed(title="せんぞくぼっと！の使い方", description="`dd!status`で各Botのステータスを確認します。\n`dd!calc <計算式>`で計算します。", color=discord.Color.green()))
-    await ctx.message.delete()
 
 @bot.command()
 @commands.cooldown(2, 5, type=commands.BucketType.user)
