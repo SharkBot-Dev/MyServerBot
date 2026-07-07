@@ -56,14 +56,18 @@ async def on_presence_update(before: discord.Member, after: discord.Member):
 
     if after.id == 1322100616369147924:
         if after.status == discord.Status.offline:
-            await bot.get_channel(1361173338763956284).send(embed=discord.Embed(title=f"Botがダウンしました。", color=discord.Color.red()).add_field(name="Bot名", value=after.global_name).set_thumbnail(url=after.display_avatar.url))
+            await bot.get_channel(1361173338763956284).send(embed=discord.Embed(title=f"Botがダウンしました。", color=discord.Color.red()).add_field(name="Bot名", value=after.name).set_thumbnail(url=after.display_avatar.url))
     elif after.id == 1392853908879179936:
         if after.status == discord.Status.offline:
-            await bot.get_channel(1361173338763956284).send(embed=discord.Embed(title=f"Botがダウンしました。", color=discord.Color.red()).add_field(name="Bot名", value=after.global_name).set_thumbnail(url=after.display_avatar.url))
+            await bot.get_channel(1361173338763956284).send(embed=discord.Embed(title=f"Botがダウンしました。", color=discord.Color.red()).add_field(name="Bot名", value=after.name).set_thumbnail(url=after.display_avatar.url))
 
 @bot.event
 async def on_message(message):
     if message.author.bot:
+        return
+    
+    if message.channel.id == 1523851417713115157:
+        await message.delete()
         return
 
     await bot.process_commands(message)
