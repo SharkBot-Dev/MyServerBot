@@ -36,9 +36,9 @@ class AutoReplyCog(commands.Cog):
                 if interaction.user.id != 1335428061541437531:
                     return
                 if "new_ok" == custom_id:
-                    await interaction.response.send_message(embeds=discord.Embed(title="この案は採用されました。", color=discord.Color.green()))
+                    await interaction.response.send_message(embed=discord.Embed(title="この案は採用されました。", color=discord.Color.green()))
                 elif "new_no" == custom_id:
-                    await interaction.response.send_message(embeds=discord.Embed(title="この案は否決されました。", color=discord.Color.red()))
+                    await interaction.response.send_message(embed=discord.Embed(title="この案は否決されました。", color=discord.Color.red()))
         except:
             return
 
