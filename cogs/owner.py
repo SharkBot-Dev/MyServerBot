@@ -10,6 +10,25 @@ class OwnerCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
+    async def reload(self, ctx: commands.Context, cog_name: str):
+        await self.bot.reload_extension("cogs." + cog_name)
+        await ctx.reply("✅")
+
+    @commands.command()
+    @commands.is_owner()
+    async def load(self, ctx: commands.Context, cog_name: str):
+        await self.bot.load_extension("cogs." + cog_name)
+        await ctx.reply("✅")
+
+    @commands.command()
+    @commands.is_owner()
+    async def sync(self, ctx: commands.Context, cog_name: str):
+        msg = await ctx.reply("<a:loading:1480529495114121279>")
+        await self.bot.tree.sync()
+        await msg.edit("✅")
+        
+    @commands.command()
+    @commands.is_owner()
     async def echo(self, ctx: commands.Context, text: str):
         await ctx.channel.send(text)
         await ctx.message.delete()
