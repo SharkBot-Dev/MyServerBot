@@ -15,5 +15,12 @@ class HelpCog(commands.Cog):
 /status 各ステータスを表示します。
 ```""")
 
+    @commands.hybrid_command(name="ping", description="Ping値を測定します。")
+    @commands.cooldown(2, 5, type=commands.BucketType.user)
+    async def ping(self, ctx: commands.Context):
+        ws_latency_ms = self.bot.latency * 1000
+
+        await ctx.send(f"Pong! {ws_latency_ms:.2f}ms")
+
 async def setup(bot):
     await bot.add_cog(HelpCog(bot))
