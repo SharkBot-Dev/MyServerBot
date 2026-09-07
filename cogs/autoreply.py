@@ -19,39 +19,28 @@ class AutoReplyCog(commands.Cog):
             message = await thread.send(embed=discord.Embed(title="バグ報告ありがとうございます。", color=discord.Color.purple(), description="管理者および、サブ管理者、\nそして開発者が対応しますので、\nしばらくお待ちください。"))
             await message.add_reaction("👍")
         elif thread.parent_id == self.NEW_CHANNEL_ID:
-            message = await thread.send(embed=discord.Embed(title="ご提案ありがとうございます。", color=discord.Color.green(), description="この提案内容は、\n必ずしも採用されるわけではありません。\nご了承ください。").set_footer(text="ok_or_no"))
+            message = await thread.send(embed=discord.Embed(title="ご提案ありがとうございます。", color=discord.Color.green(), description="この提案内容は、\n必ずしも採用されるわけではありません。\nご了承ください。"), view=discord.ui.View(timeout=None).add_item(discord.ui.Button(emoji="✅", label="採用", style=discord.ButtonStyle.green, custom_id="new_ok")).add_item(discord.ui.Button(emoji="❌", label="不採用", style=discord.ButtonStyle.red, custom_id="new_no")))
             await message.add_reaction("✅")
-            await message.add_reaction("❌")
         elif thread.parent_id == self.REPORT_CHANNEL_ID:
             message = await thread.send(embed=discord.Embed(title="ご報告ありがとうございます。", color=discord.Color.red(), description="この通報内容は、管理者やモデレーターによって議論され、\n処罰、もしくは警告などが決定します。").set_footer(text="不適切な通報やデマ等の場合は、通報者が処罰されます。"))
             await message.add_reaction("✅")
 
-    @commands.Cog.listener(name="on_raw_reaction_add")
-    async def on_raw_reaction_add_new(self, payload: discord.RawReactionActionEvent):
-        channel = self.bot.get_channel(payload.channel_id)
-        if not channel:
+    @commands.Cog.listener(name="on_interaction")
+    async def on_interaction_new(self, interaction: discord.Interaction):
+        try:
+            if interaction.data["component_type"] == 2:
+                try:
+                    custom_id = interaction.data["custom_id"]
+                except:
+                    return
+                if interaction.user.id != 1335428061541437531:
+                    return
+                if "new_ok" == custom_id:
+                    await interaction.response.send_message(embeds=discord.Embed(title="この案は採用されました。", color=discord.Color.green()))
+                elif "new_no" == custom_id:
+                    await interaction.response.send_message(embeds=discord.Embed(title="この案は否決されました。", color=discord.Color.red()))
+        except:
             return
-        if channel.parent_id == self.NEW_CHANNEL_ID:
-            # オーナーid
-            if payload.user_id != 1335428061541437531:
-                return
-
-            try:
-                message = await channel.fetch_message(payload.message_id)
-            except:
-                return
-            if not message:
-                return
-            if message.embeds == []:
-                return
-            if message.embeds[0].footer.text != "ok_or_no":
-                return
-            if payload.emoji == "✅":
-                await message.clear_reactions()
-                await channel.send(embeds=discord.Embed(title="この提案は採用されました。", color=discord.Color.green()))
-            elif payload.emoji == "❌":
-                await message.clear_reactions()
-                await channel.send(embeds=discord.Embed(title="この提案は否決されました。", color=discord.Color.red()))
 
 async def setup(bot):
     await bot.add_cog(AutoReplyCog(bot))
