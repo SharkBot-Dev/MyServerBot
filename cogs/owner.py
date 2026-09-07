@@ -22,7 +22,7 @@ class OwnerCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def sync(self, ctx: commands.Context, cog_name: str):
+    async def sync(self, ctx: commands.Context):
         msg = await ctx.reply("<a:loading:1480529495114121279>")
         await self.bot.tree.sync()
         await msg.edit("✅")
