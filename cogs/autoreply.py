@@ -19,11 +19,11 @@ class AutoReplyCog(commands.Cog):
             message = await thread.send(embed=discord.Embed(title="バグ報告ありがとうございます。", color=discord.Color.purple(), description="管理者および、サブ管理者、\nそして開発者が対応しますので、\nしばらくお待ちください。"))
             await message.add_reaction("👍")
         elif thread.parent_id == self.NEW_CHANNEL_ID:
-            message = await thread.send(embed=discord.Embed(title="ご提案ありがとうございます。", color=discord.Color.purple(), description="この提案内容は、\n必ずしも採用されるわけではありません。\nご了承ください。").set_footer(text="ok_or_no"))
+            message = await thread.send(embed=discord.Embed(title="ご提案ありがとうございます。", color=discord.Color.green(), description="この提案内容は、\n必ずしも採用されるわけではありません。\nご了承ください。").set_footer(text="ok_or_no"))
             await message.add_reaction("✅")
             await message.add_reaction("❌")
         elif thread.parent_id == self.REPORT_CHANNEL_ID:
-            message = await thread.send(embed=discord.Embed(title="ご報告ありがとうございます。", color=discord.Color.purple(), description="この通報内容は、管理者やモデレーターによって議論され、\n処罰、もしくは警告などが決定します。").set_footer(text="不適切な通報やデマ等の場合は、通報者が処罰されます。"))
+            message = await thread.send(embed=discord.Embed(title="ご報告ありがとうございます。", color=discord.Color.red(), description="この通報内容は、管理者やモデレーターによって議論され、\n処罰、もしくは警告などが決定します。").set_footer(text="不適切な通報やデマ等の場合は、通報者が処罰されます。"))
             await message.add_reaction("✅")
 
     @commands.Cog.listener(name="on_raw_reaction_add")
