@@ -28,7 +28,7 @@ class DownCog(commands.Cog):
 
     @tasks.loop(minutes=10)
     async def status_presence(self):
-        await self.bot.change_presence("/help | 専属Bot")
+        await self.bot.change_presence(activity=discord.CustomActivity(name="/help | 専属Bot"))
 
     @commands.Cog.listener("on_ready")
     async def on_ready(self):
