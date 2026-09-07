@@ -20,6 +20,8 @@ async def setup_hook() -> None:
     await bot.load_extension("cogs.help")
     await bot.load_extension("cogs.autoreply")
 
+    await bot.load_extension("jishaku")
+
 @bot.event
 async def on_message(message):
     if message.author.bot:

@@ -37,7 +37,8 @@ class DownCog(commands.Cog):
     @commands.hybrid_command(name="status", description="各Botのステータスを表示します。")
     @commands.cooldown(2, 5, type=commands.BucketType.user)
     async def status(self, ctx: commands.Context):
-        bots = [ctx.guild.get_member(1322100616369147924), ctx.guild.get_member(1392853908879179936)]
+        guild = self.bot.get_guild(1343124570131009579)
+        bots = [guild.get_member(1322100616369147924), guild.get_member(1392853908879179936)]
         status_text = "\n".join([f"{STATUS_EMOJIS.get(b.status)} {b.name}" for b in bots])
         await ctx.send(embed=discord.Embed(title="各Botのステータス", description=status_text, color=discord.Color.blue()))
 
