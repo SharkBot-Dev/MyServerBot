@@ -9,7 +9,7 @@ import re
 
 dotenv.load_dotenv()
 
-bot = commands.Bot(command_prefix="dd!", intents=discord.Intents.all(), help_command=None)
+bot = commands.Bot(command_prefix=["s.", "dd!"], intents=discord.Intents.all(), help_command=None)
 
 @bot.event
 async def setup_hook() -> None:

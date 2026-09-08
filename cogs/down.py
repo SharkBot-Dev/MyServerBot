@@ -40,7 +40,7 @@ class DownCog(commands.Cog):
         guild = self.bot.get_guild(1343124570131009579)
         bots = [guild.get_member(1322100616369147924), guild.get_member(1343156909242454038), guild.get_member(1502156877998460959), guild.get_member(1537386704137363527), guild.get_member(1537996178157871154)]
         status_text = "\n".join([f"{STATUS_EMOJIS.get(b.status)} {b.name}" for b in bots])
-        await ctx.send(embed=discord.Embed(title="各Botのステータス", description=status_text, color=discord.Color.blue()))
+        await ctx.send(embed=discord.Embed(title="各Botのステータス", description=status_text, color=discord.Color.green()))
 
 async def setup(bot):
     await bot.add_cog(DownCog(bot))
