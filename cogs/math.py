@@ -14,6 +14,9 @@ class MathCog(commands.Cog):
     @commands.hybrid_command(name="calc", description="計算をします。", aliases=["math"])
     @commands.cooldown(2, 5, type=commands.BucketType.user)
     async def help(self, ctx: commands.Context, expression: str):
+        await ctx.reply("このコマンドは廃止されました。")
+        return
+
         def safe_calculate(expression):
             if not re.fullmatch(r'[0-9+\-*/().\s]+', expression):
                 return "計算エラー"
