@@ -17,6 +17,8 @@ class AutoReplyCog(commands.Cog):
         if message.author.bot:
             if message.author.id != self.SHARK_BOT_ID:
                 return
+            if not message.interaction_metadata:
+                return
             if message.channel.id == self.ECONOMY_CHANNEL_ID:
                 await message.channel.send("<a:loading:1480529495114121279> 固定メッセージを移動しています..", delete_after=5)
                 return
