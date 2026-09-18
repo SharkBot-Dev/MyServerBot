@@ -16,7 +16,7 @@ async def setup_hook() -> None:
     await bot.load_extension("cogs.down")
     await bot.load_extension("cogs.emojis")
     await bot.load_extension("cogs.owner")
-    await bot.load_extension("cogs.math")
+    # await bot.load_extension("cogs.math")
     await bot.load_extension("cogs.help")
     await bot.load_extension("cogs.autoreply")
 

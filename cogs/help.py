@@ -12,7 +12,6 @@ class HelpCog(commands.Cog):
         await ctx.send("""```
 /help このメッセージを表示します。
 /ping Ping値を測定します。
-/calc 計算をします。
 /status 各ステータスを表示します。
 ```""")
 
