@@ -9,6 +9,17 @@ class AutoReplyCog(commands.Cog):
         self.BUG_CHANNEL_ID = 1490227625883467826
         self.NEW_CHANNEL_ID = 1352823275469799464
         self.REPORT_CHANNEL_ID = 1485859712212668547
+        self.SHARK_BOT_ID = 1322100616369147924
+        self.ECONOMY_CHANNEL_ID = 1407174743832002641
+
+    @commands.Cog.listener(name="on_message")
+    async def on_message_create_message(self, message: discord.Message):
+        if message.author.bot:
+            if message.author.id != self.SHARK_BOT_ID:
+                return
+            if message.channel.id == self.ECONOMY_CHANNEL_ID:
+                await message.channel.send("<a:loading:1480529495114121279> 固定メッセージを移動しています..", delete_after=5)
+                return
 
     @commands.Cog.listener(name="on_thread_create")
     async def on_thread_create_message(self, thread: discord.Thread):
