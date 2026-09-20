@@ -12,13 +12,23 @@ class ScriptSyntaxError(Exception):
 
 
 class Parser:
+    """Lists are JSON strings, compatible with existing set/get/call and callbacks.
 
+    {list:a|b} creates a list; {list:} creates an empty list.
+    {split:a,b|,} splits text (whitespace when the separator is omitted).
+    {join:{get:items}|,} joins items (empty separator by default).
+    {listget:{get:items}|0} gets an item (zero-based; negatives allowed).
+    {listlen:{get:items}} returns the number of items.
+    {listappend:{get:items}|c|d} returns a list with added items.
+    {listremove:{get:items}|0} returns a list without the indexed item.
+
+    Save updates explicitly: {set:items|{listappend:{get:items}|c}}.
+    Invalid lists, arguments and indices return an empty string.
+    """
     def __init__(self, globals_dict: Optional[Dict[str, Any]] = None):
         # 外部から与えられる組み込み変数 (文字列化して保持)
         self.globals: Dict[str, str] = (
-            {k: str(v) for k, v in globals_dict.items()}
-            if globals_dict
-            else {}
+            {k: str(v) for k, v in globals_dict.items()} if globals_dict else {}
         )
 
         # ユーザー定義変数
@@ -134,39 +144,83 @@ class Parser:
     def add_func(self, name: str, func):
         self.default_functions[name] = func
 
+    def _execute_list_command(self, command: str, value: str, args: List[str]) -> str:
+        """Keep list inputs and outputs compatible with string-based evaluation."""
+        try:
+            if command == "list":
+                items = [value] + args if value or args else []
+            elif command == "split":
+                if len(args) > 1:
+                    return ""
+                items = value.split(args[0]) if args else value.split()
+            else:
+                items = json.loads(value)
+                if not isinstance(items, list):
+                    return ""
+
+                if command == "join":
+                    if len(args) > 1:
+                        return ""
+                    return (args[0] if args else "").join(
+                        self._list_item_text(item) for item in items
+                    )
+                if command == "listlen":
+                    return str(len(items)) if not args else ""
+                if command == "listappend":
+                    items.extend(args)
+                elif command in ("listget", "listremove"):
+                    if len(args) != 1:
+                        return ""
+                    index = int(args[0])
+                    if command == "listget":
+                        return self._list_item_text(items[index])
+                    items.pop(index)
+
+            return json.dumps(items, ensure_ascii=False)
+        except (ValueError, TypeError, IndexError):
+            return ""
+
+    @staticmethod
+    def _list_item_text(item: Any) -> str:
+        return item if isinstance(item, str) else json.dumps(item, ensure_ascii=False)
+
     def _eval_condition(self, cond_str: str) -> bool:
         operators = [">=", "<=", "==", "!=", ">", "<"]
         op_found = None
-        
+
         for op in operators:
             if op in cond_str:
                 op_found = op
                 break
-                
+
         if not op_found:
             return bool(self._clean_token(cond_str))
-            
+
         left_raw, right_raw = cond_str.split(op_found, 1)
         left = self._clean_token(left_raw)
         right = self._clean_token(right_raw)
-        
+
         if op_found in [">=", "<=", ">", "<"]:
             try:
                 l_num = float(left)
                 r_num = float(right)
-                
-                if op_found == ">=": return l_num >= r_num
-                if op_found == "<=": return l_num <= r_num
-                if op_found == ">":  return l_num > r_num
-                if op_found == "<":  return l_num < r_num
+
+                if op_found == ">=":
+                    return l_num >= r_num
+                if op_found == "<=":
+                    return l_num <= r_num
+                if op_found == ">":
+                    return l_num > r_num
+                if op_found == "<":
+                    return l_num < r_num
             except ValueError:
                 return False
-                
+
         if op_found == "==":
             return left == right
         if op_found == "!=":
             return left != right
-            
+
         return False
 
     async def _execute_expression(self, tokens: List[Any]) -> str:
@@ -203,18 +257,24 @@ class Parser:
 
             if command == "if":
                 # 最初のみ main_arg が最初の条件式になる
-                current_cond = (await self._evaluate_ast(first_arg_tokens)).split(":", 1)[1]
-                
+                current_cond = (await self._evaluate_ast(first_arg_tokens)).split(
+                    ":", 1
+                )[1]
+
                 # 最初(if)の条件を評価
                 if self._eval_condition(current_cond):
-                    return await self._evaluate_ast(raw_args[1]) if len(raw_args) > 1 else ""
-                
+                    return (
+                        await self._evaluate_ast(raw_args[1])
+                        if len(raw_args) > 1
+                        else ""
+                    )
+
                 # マッチしなかった場合、以降の elif / else を探す
                 idx = 2
                 while idx < len(raw_args):
                     block_head = await self._evaluate_ast(raw_args[idx])
                     cleaned_head = self._clean_token(block_head)
-                    
+
                     if cleaned_head.startswith("elif:"):
                         cond_part = cleaned_head.split(":", 1)[1]
                         if self._eval_condition(cond_part):
@@ -306,10 +366,20 @@ class Parser:
                     return urllib.parse.quote(main_arg)
 
                 else:
+                    # Preserve existing callbacks even when their names overlap.
+                    if command in {
+                        "list", "split", "join", "listget", "listlen",
+                        "listappend", "listremove",
+                    } and not self.default_functions.get(command):
+                        return self._execute_list_command(
+                            command, main_arg, evaluated_tail_args
+                        )
                     if not self.default_functions.get(command):
                         return ""
                     try:
-                        return await self.default_functions.get(command)(self.globals, [main_arg] + evaluated_tail_args)
+                        return await self.default_functions.get(command)(
+                            self.globals, [main_arg] + evaluated_tail_args
+                        )
                     except:
                         return ""
 
@@ -338,8 +408,10 @@ class Parser:
 
         # 未定義の場合は空文字列
         return ""
-    
+
+
 if __name__ == "__main__":
+
     async def embed(globals, args):
         if not args:
             return ""
@@ -348,7 +420,7 @@ if __name__ == "__main__":
         for _ in " ".join(args).split(","):
             data = _.split("=", 1)
             _dict[data[0]] = data[1]
-        
+
         return str(_dict)
 
     text = """
