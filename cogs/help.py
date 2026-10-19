@@ -13,6 +13,7 @@ class HelpCog(commands.Cog):
 /help このメッセージを表示します。
 /ping Ping値を測定します。
 /status 各ステータスを表示します。
+/iplookup IP情報を検索します。
 ```""")
 
     @commands.hybrid_command(name="ping", description="Ping値を測定します。")
