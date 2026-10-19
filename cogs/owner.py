@@ -58,7 +58,57 @@ class OwnerCog(commands.Cog):
             "channel_id": str(ctx.channel.id),
             "message_id": str(ctx.message.id)
         })
-        await ctx.channel.send(await parser.parse(text))
+
+        embeds = []
+
+        async def addembed(globals, args):
+            if not args:
+                return ""
+
+            try:
+                _dict = {}
+                for _ in " ".join(args).split(","):
+                    data = _.split("=", 1)
+                    if data[0] == "color":
+                        _dict[data[0]] = int(data[1])
+                        continue
+                    if data[0] == "image":
+                        _dict[data[0]] = {"url": data[1]}
+                        continue
+                    if data[0] == "thumbnail":
+                        _dict[data[0]] = {"url": data[1]}
+                        continue
+                    if data[0] == "author":
+                        if not _dict.get("author"):
+                            _dict["author"] = {}
+                        _dict["author"]["name"] = data[1]
+                        continue
+                    if data[0] == "author_icon":
+                        if not _dict.get("author"):
+                            _dict["author"] = {}
+                        _dict["author"]["icon_url"] = data[1]
+                        continue
+                    if data[0] == "footer":
+                        if not _dict.get("footer"):
+                            _dict["footer"] = {}
+                        _dict["footer"]["text"] = data[1]
+                        continue
+                    if data[0] == "footer_icon":
+                        if not _dict.get("footer"):
+                            _dict["footer"] = {}
+                        _dict["footer"]["icon_url"] = data[1]
+                        continue
+                    _dict[data[0]] = data[1]
+
+                embeds.append(discord.Embed.from_dict(_dict))
+                return ""
+            except:
+                return ""
+
+        parser.add_func("embed", addembed)
+        parser.add_func("addembed", addembed)
+
+        await ctx.channel.send(await parser.parse(text), embeds=embeds)
         await ctx.message.add_reaction("✅")
 
 async def setup(bot):
