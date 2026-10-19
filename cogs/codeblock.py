@@ -4,7 +4,7 @@ import aiohttp
 import discord
 from discord.ext import commands, tasks
 
-codeblock_py_pattern = re.compile(r"```py\n.*```")
+codeblock_py_pattern = re.compile(r"```py\n.*```", flags=re.DOTALL)
 
 class CodeblockCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -22,7 +22,7 @@ class CodeblockCog(commands.Cog):
         if message.channel.id not in self.ALLOW_CHANNEL_IDS:
             return
 
-        codeblock_py = codeblock_py_pattern.search(message.content, flags=re.DOTALL)
+        codeblock_py = codeblock_py_pattern.search(message.content)
         if codeblock_py:
             await message.channel.send(embed=discord.Embed(title="Pythonコードを検出しました。", description=codeblock_py.group(0)))
 
