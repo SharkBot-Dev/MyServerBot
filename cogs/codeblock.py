@@ -24,7 +24,7 @@ class CodeblockCog(commands.Cog):
 
         codeblock_py = codeblock_py_pattern.search(message.content)
         if codeblock_py:
-            await message.channel.send(embed=discord.Embed(title="Pythonコードを検出しました。", description=codeblock_py.group(0)))
+            await message.channel.send(embed=discord.Embed(title="Pythonコードを検出しました。", description=codeblock_py.group(0), color=discord.Color.blue()).set_author(name=f"{message.author.name} ({message.author.id})", icon_url=message.author.display_avatar.url))
 
 async def setup(bot):
     await bot.add_cog(CodeblockCog(bot))
