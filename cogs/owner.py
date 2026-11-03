@@ -111,5 +111,12 @@ class OwnerCog(commands.Cog):
         await ctx.channel.send(await parser.parse(text), embeds=embeds)
         await ctx.message.add_reaction("✅")
 
+    @commands.command()
+    @commands.is_owner()
+    async def purge_me(self, ctx: commands.Context, count: int = 100):
+        def check(message: discord.Message):
+            return message.author.id == ctx.author.id
+        await ctx.channel.purge(limit=count, check=check)
+
 async def setup(bot):
     await bot.add_cog(OwnerCog(bot))
